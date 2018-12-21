@@ -101,6 +101,8 @@ class _ZipIterator(namedtuple('_ZipIterator', ['zipfile_path', 'prefix'])):
     path = root
     while path:
       if zipfile.is_zipfile(path):
+        print(prefix)
+        print(path)
         return cls(zipfile_path=path, prefix=prefix + os.sep if prefix else '')
       prefix = os.path.join(prefix, os.path.basename(path))
       path = os.path.dirname(path)
