@@ -137,7 +137,8 @@ def safe_open(filename, *args, **kwargs):
   ``safe_open`` ensures that the directory components leading up the
   specified file have been created first.
   """
-  safe_mkdir(os.path.dirname(filename))
+  filepath = safe_path(filename)
+  safe_mkdir(os.path.dirname(filepath))
   return open(filename, *args, **kwargs)  # noqa: T802
 
 
@@ -154,6 +155,21 @@ def safe_rmtree(directory):
   """Delete a directory if it's present. If it's not present, no-op."""
   if os.path.exists(directory):
     shutil.rmtree(directory, True)
+
+
+def safe_path(path):
+  """Make a path safe for Windows.
+  Windows has a max path length of 260 character by default, which can be
+  expanded to 32767 characters by appending a "\\?\" prefix:
+  https://docs.microsoft.com/windows/desktop/FileIO/naming-a-file#maximum-path-length-limitation
+  If running Windows, add extended-path prefix if it's not already present. If not running
+  Windows, path is not modified.
+  """
+  if os.name == "nt":
+    extended_path_prefix = u"\\\\?\\"
+    if not path.startswith(extended_path_prefix):
+      return os.path.abspath(extended_path_prefix + path)
+  return path
 
 
 def rename_if_empty(src, dest, allowable_errors=(errno.EEXIST, errno.ENOTEMPTY)):
