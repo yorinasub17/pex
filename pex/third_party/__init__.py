@@ -23,6 +23,12 @@ def _tracer():
   return TRACER
 
 
+def _windows_safe_path():
+  from pex.common import safe_path
+
+  return safe_path
+
+
 class _Loader(namedtuple('_Loader', ['module_name', 'vendor_module_name'])):
 
   # The PEP-302 loader API.
@@ -101,7 +107,7 @@ class _ZipIterator(namedtuple('_ZipIterator', ['zipfile_path', 'prefix'])):
     path = root
     while path:
       if zipfile.is_zipfile(path):
-        print(prefix)
+        path = _windows_safe_path()(path)
         print(path)
         return cls(zipfile_path=path, prefix=prefix + os.sep if prefix else '')
       prefix = os.path.join(prefix, os.path.basename(path))
