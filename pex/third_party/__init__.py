@@ -222,6 +222,9 @@ class VendorImporter(object):
 
       exposed_paths = path_by_key.values()
       for exposed_path in exposed_paths:
+        print('========================================')
+        print(sys.path)
+        print('________________________________________')
         sys.path.insert(0, os.path.join(root, exposed_path))
       vendor_importer._expose(exposed_paths)
 
