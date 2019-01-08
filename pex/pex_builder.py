@@ -23,6 +23,9 @@ LEGACY_BOOSTRAP_PKG = '_pex'
 BOOTSTRAP_ENVIRONMENT = """
 import os
 import sys
+import platform
+
+IS_WIN = platform.system() == "Windows"
 
 __entry_point__ = None
 if '__file__' in locals() and __file__ is not None:
@@ -37,6 +40,35 @@ elif '__loader__' in locals():
 if __entry_point__ is None:
   sys.stderr.write('Could not launch python executable!\\n')
   sys.exit(2)
+
+def windows_long_path(path):
+    # Windows has a max path length:
+    # https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file#maximum-path-length-limitation
+    # We work around this by using the short path API that windows provides
+    assert IS_WIN
+
+    # We use the GetShortPathNameW kernel API from windows to get the short path form of a long path so that we can
+    # access it without hitting the limit.
+    # See https://stackoverflow.com/a/23598461
+    import ctypes
+    from ctypes import wintypes
+    _GetShortPathNameW = ctypes.windll.kernel32.GetShortPathNameW
+    _GetShortPathNameW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
+    _GetShortPathNameW.restype = wintypes.DWORD
+
+    output_buf_size = 0
+    # NOTE: this is a do while loop (exit condition checked at end of loop), because the condition needs to be checked
+    # after the API call.
+    while True:
+        output_buf = ctypes.create_unicode_buffer(output_buf_size)
+        needed = _GetShortPathNameW(path, output_buf, output_buf_size)
+        if output_buf_size >= needed:
+            return output_buf.value
+        else:
+            output_buf_size = needed
+
+if IS_WIN:
+    __entry_point__ = windows_long_path(__entry_point__)
 
 sys.path[0] = os.path.abspath(sys.path[0])
 sys.path.insert(0, os.path.abspath(os.path.join(__entry_point__, {bootstrap_dir!r})))
