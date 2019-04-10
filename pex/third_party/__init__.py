@@ -101,7 +101,10 @@ class _ZipIterator(namedtuple('_ZipIterator', ['zipfile_path', 'prefix'])):
     path = root
     while path:
       if zipfile.is_zipfile(path):
-        return cls(zipfile_path=path, prefix=prefix + os.sep if prefix else '')
+        # We use '/' here instead of os.sep because the zip file format spec specifies that paths must
+        # use forward slashes. See section 4.4.17 of
+        # https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+        return cls(zipfile_path=path, prefix=('{}/'.format(prefix) if prefix else ''))
       prefix = os.path.join(prefix, os.path.basename(path))
       path = os.path.dirname(path)
     raise ValueError('Could not find the zip file housing {}'.format(root))
@@ -117,8 +120,8 @@ class _ZipIterator(namedtuple('_ZipIterator', ['zipfile_path', 'prefix'])):
 
   def _filter_names(self, relpath, pattern, group):
     # We use '/' here instead of os.sep because the zip file format spec specifies that paths must
-    # use forward slashes.
-    # See section 4.4.17 of https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+    # use forward slashes. See section 4.4.17 of
+    # https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
     relpath_pat = '{}/'.format(relpath) if relpath else ''
     pat = re.compile(r'^{}{}{}$'.format(self.prefix, relpath_pat, pattern))
     with contextlib.closing(zipfile.ZipFile(self.zipfile_path)) as zf:
