@@ -116,10 +116,11 @@ class _ZipIterator(namedtuple('_ZipIterator', ['zipfile_path', 'prefix'])):
       yield package
 
   def _filter_names(self, relpath, pattern, group):
-    pat = re.compile(r'^{prefix}{pattern}$'
-                     .format(prefix=self.prefix + ((relpath + os.sep) if relpath else ''),
-                             pattern=pattern))
-
+    # We use '/' here instead of os.sep because the zip file format spec specifies that paths must
+    # use forward slashes.
+    # See section 4.4.17 of https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+    relpath_pat = '{}/'.format(relpath) if relpath else ''
+    pat = re.compile(r'^{}{}{}$'.format(self.prefix, relpath_pat, pattern))
     with contextlib.closing(zipfile.ZipFile(self.zipfile_path)) as zf:
       for name in zf.namelist():
         match = pat.match(name)
