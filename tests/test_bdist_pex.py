@@ -56,7 +56,7 @@ def assert_entry_points(entry_points):
       stdout, _ = process.communicate()
       assert '{pex_root}' not in os.listdir(project_dir)
       assert 0 == process.returncode
-      assert stdout == b'hello world!\n'
+      assert stdout == b'hello world!{}'.format(os.linesep)
 
 
 def assert_pex_args_shebang(shebang):
