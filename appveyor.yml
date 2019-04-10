@@ -1,0 +1,31 @@
+environment:
+
+  matrix:
+    # See https://www.appveyor.com/docs/windows-images-software/#python for a list of available python versions
+    - PYTHON: "C:\\Python27-x64"
+      TOXENV: "py27"
+    - PYTHON: "C:\\Python27-x64"
+      TOXENV: "py27-requests"
+    - PYTHON: "C:\\Python27-x64"
+      TOXENV: "py27-integration"
+    - PYTHON: "C:\\Python34-x64"
+      TOXENV: "py34"
+      DISTUTILS_USE_SDK: "1"
+    - PYTHON: "C:\\Python35-x64"
+      TOXENV: "py35"
+    - PYTHON: "C:\\Python36-x64"
+      TOXENV: "py36"
+    - PYTHON: "C:\\Python37-x64"
+      TOXENV: "py37"
+    - PYTHON: "C:\\Python37-x64"
+      TOXENV: "py37-requests"
+    - PYTHON: "C:\\Python37-x64"
+      TOXENV: "py37-requests-cachecontrol"
+    - PYTHON: "C:\\Python37-x64"
+      TOXENV: "py37-integration"
+
+  install:
+    - "%PYTHON%\\python.exe -m pip install tox"
+
+  test_script:
+    - "build.cmd %PYTHON%\\python.exe -m tox -v -e %TOXENV%"
