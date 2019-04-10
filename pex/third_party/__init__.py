@@ -122,6 +122,7 @@ class _ZipIterator(namedtuple('_ZipIterator', ['zipfile_path', 'prefix'])):
     # We use '/' here instead of os.sep because the zip file format spec specifies that paths must
     # use forward slashes. See section 4.4.17 of
     # https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT.
+    _tracer().log('WTF zip: {} ; {}'.format(self.prefix, relpath))
     relpath_pat = '{}/'.format(relpath) if relpath else ''
     pat = re.compile(r'^{}{}{}$'.format(self.prefix, relpath_pat, pattern))
     with contextlib.closing(zipfile.ZipFile(self.zipfile_path)) as zf:
