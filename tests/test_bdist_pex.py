@@ -4,6 +4,7 @@ import os
 import stat
 import subprocess
 import sys
+import platform
 from contextlib import contextmanager
 from textwrap import dedent
 
@@ -46,7 +47,12 @@ def assert_entry_points(entry_points):
 
   with temporary_content({'setup.py': setup_py, 'my_app.py': my_app}) as project_dir:
     with bdist_pex(project_dir) as my_app_pex:
-      process = subprocess.Popen([my_app_pex], stdout=subprocess.PIPE)
+      cmd = [my_app_pex]
+      if platform.system() == 'Windows':
+        # On windows, we can't directly execute the pex because shebang isn't supported, so we call
+        # it with python.
+        cmd = [sys.executable] + cmd
+      process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
       stdout, _ = process.communicate()
       assert '{pex_root}' not in os.listdir(project_dir)
       assert 0 == process.returncode
