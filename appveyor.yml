@@ -8,9 +8,6 @@ environment:
       TOXENV: "py27-requests"
     - PYTHON: "C:\\Python27-x64"
       TOXENV: "py27-integration"
-    - PYTHON: "C:\\Python34-x64"
-      TOXENV: "py34"
-      DISTUTILS_USE_SDK: "1"
     - PYTHON: "C:\\Python35-x64"
       TOXENV: "py35"
     - PYTHON: "C:\\Python36-x64"
@@ -30,4 +27,4 @@ install:
 build: off
 
 test_script:
-  - "build.cmd %PYTHON%\\python.exe -m tox -v -e %TOXENV%"
+  - "%PYTHON%\\python.exe -m tox -v -e %TOXENV%"
