@@ -118,7 +118,7 @@ class PermPreservingZipFile(zipfile.ZipFile, object):
     return zinfo
 
   def _extract_member(self, member, targetpath, pwd):
-    result = super(PermPreservingZipFile, self)._extract_member(member, targetpath, pwd)
+    result = super(PermPreservingZipFile, self)._extract_member(member, safe_path(targetpath), pwd)
     info = member if isinstance(member, zipfile.ZipInfo) else self.getinfo(member)
     self._chmod(info, result)
     return result
